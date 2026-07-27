@@ -75,6 +75,13 @@ Do not use SeaGrid AR as a substitute for:
 
 Open-water “occlusion” is **not** seafloor imaging through water — only air-side geometry and water-plane clipping.
 
+## ChatGPT / agent work prompt
+
+Ready-to-paste implementation & deployment brief:
+
+- **[`docs/CHATGPT_WORK_PROMPT.md`](docs/CHATGPT_WORK_PROMPT.md)** — full Work prompt (PROMPT START → END)  
+- Source of truth remains **[`docs/DESIGN.md`](docs/DESIGN.md)**
+
 ## Contributing
 
 1. Read `docs/DESIGN.md` (Key Decisions KD-1…22).  
