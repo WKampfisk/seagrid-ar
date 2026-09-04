@@ -6,7 +6,10 @@
 
 ## Status
 
-Greenfield public design + monorepo scaffold. Full architecture and phased PR plan: [`docs/DESIGN.md`](docs/DESIGN.md).
+PR 1 implementation is underway: the Flutter application shell, Melos
+workspace, and GitHub Actions checks are in place. Native AR and geospatial
+packages begin in later PRs. Full architecture and phased PR plan:
+[`docs/DESIGN.md`](docs/DESIGN.md).
 
 | | |
 |---|---|
@@ -50,7 +53,7 @@ See design doc for normative algorithms, `MetricFormat`, mode matrix, and Androi
 ## Repository layout
 
 ```
-apps/seagrid/          # Flutter application (scaffold TBD — PR 1)
+apps/seagrid/          # Flutter application shell
 packages/              # Pure-Dart packages (geo, bathy, peaks, ar_interface, …)
 native/                # iOS RealityKit / Android Filament shells
 tools/                 # tile_builder, peak_builder

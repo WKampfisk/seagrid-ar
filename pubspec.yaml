@@ -1,0 +1,11 @@
+name: seagrid_workspace
+description: Tooling workspace for the SeaGrid AR monorepo.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dev_dependencies:
+  melos: ^6.3.2
+

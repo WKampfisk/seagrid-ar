@@ -4,8 +4,8 @@
 |-------|--------|
 | **Title** | SeaGrid AR: Mobile AR Grid for Bathymetry, Terrain & Navigation |
 | **Author** | SeaGrid AR maintainers (placeholder until first committers assigned) |
-| **Date** | 2026-07-27 |
-| **Status** | Draft (Rev 3 — post re-review) |
+| **Date** | 2026-09-04 |
+| **Status** | Draft (Rev 4 — implementation kickoff) |
 | **License** | Apache-2.0 (app code); third-party data under their own terms |
 | **Repo** | Greenfield public GitHub repository (proposed name: `seagrid-ar`) |
 | **Stack** | Flutter 3.22+ (iOS 16+ / Android API 28+), native AR scene (RealityKit + Filament), Riverpod |
@@ -36,9 +36,11 @@ Fishers, divers, and coastal travelers lack a simple, live AR view that answers:
 
 Existing tools (Navionics, Google Earth, PeakFinder-class apps) are either 2D charts, offline peak finders without underwater meshes, or desktop GIS—not a unified AR overlay with a metric grid.
 
-### Current state (greenfield)
+### Current state (implementation kickoff)
 
-There is no existing codebase. Design assumes a new public repo with:
+PR 1 has started with the Flutter application shell, workspace tooling, and CI.
+Native AR, geospatial packages, and data tools remain unimplemented. The target
+monorepo contains:
 
 - Flutter app shell (UI, settings, offline downloads)
 - **Native AR scene ownership** (camera, grid, bathy mesh, peak world nodes)
@@ -62,7 +64,7 @@ There is no existing codebase. Design assumes a new public repo with:
 
 ### Goals
 
-1. **AR metric grid overlay** on live camera: local AR-world or ENU-aligned meters, configurable spacing (1 / 5 / 10 / 25 m).
+1. **AR metric grid overlay** on live camera: local AR-world or ENU-aligned meters, configurable spacing (1 / 5 / 10 / 25 m), with camera-directed distance, depth, and elevation context where the underlying datasets support it.
 2. **Approximate height above sea level** displayed continuously as **user-facing “Elevation ≈ X m”** (display orthometric ≈ \(h - N_{\mathrm{EGM96}}\)), with mandatory uncertainty when vertical σ is large.
 3. **Mountain peak labels**: name + integer elevation (m) for peaks in FOV / radius, with screen-space projection and decluttering.
 4. **Underwater terrain visualization**: bathymetric mesh **below the water plane**, with **air-side** occlusion against real-world depth/mesh when hardware supports it (piers, boats, land). Always show **data resolution** in UX.
@@ -114,6 +116,8 @@ There is no existing codebase. Design assumes a new public repo with:
 | KD-20 | **Custom ENU anchor for MVP**; Google Geospatial API / Apple GeoAnchors **out of MVP** (optional later enhancers) | Offline parity iOS/Android; less vendor lock-in. |
 | KD-21 | **Metric formatting**: single `MetricFormat` API (see Metric units); distance default = **horizontal**; slant only in Dive plan | Implementable contract; no locale unit systems. |
 | KD-22 | **User-facing altitude label**: “Elevation ≈ X m” + “above sea level (approx.)”; never show “HAE” in UI | HAE remains developer/log terminology only. |
+| KD-23 | **Camera-directed terrain is geospatial rendering, not sensing through water**: use the camera pose and ray direction to select and render the corresponding DEM/bathymetry surface; never imply that phone LiDAR or depth cameras measure the submerged seabed | Preserves the automatic point-and-view experience without making a physically false sensor claim. |
+| KD-24 | **Diving/fishing profiles are planning aids with resolution gates**: scallop, pot, and net workflows may consume regional high-resolution data only when source, license, datum, resolution, and age are known; GEBCO remains broad context | GEBCO-scale cells are not sufficient for object placement or safe dive-depth decisions. |
 
 ---
 
@@ -150,6 +154,26 @@ flowchart TD
 
 - iOS: `supportsSceneReconstruction(.mesh)`, LiDAR presence, `ARConfiguration.isSupported`, depth data formats
 - Android: ARCore availability, Depth API support
+
+### Camera-directed terrain and activity profiles
+
+The live camera pose defines a view ray. SeaGrid intersects that ray with the
+water plane, terrain mesh, bathymetry mesh, or a bounded planning surface and
+uses the nearest valid intersection to drive highlighting and tap information.
+This behavior is automatic after tracking and geodetic alignment are ready.
+
+The result must always carry its provenance:
+
+- data source and acquisition/publication date when available;
+- horizontal cell resolution and vertical datum;
+- uncertainty or an explicit “unknown” value;
+- tide-correction state; and
+- whether the value is sampled, interpolated, or outside the available pack.
+
+`Coastal`, `Dive plan`, `Pots & nets`, and `Scallop planning` are presentation
+profiles over the same geospatial engine, not separate truth models. Safety
+copy must prevent a planning profile from being mistaken for sonar, a dive
+computer, an official chart, or live underwater sensing.
 
 ### Occlusion semantics (critical product truth)
 
@@ -1275,6 +1299,10 @@ flowchart TB
 **Android:** PR 5 parallel; not required for first TestFlight.  
 **SLAM import:** post-v1.0 (PR 20).
 
+Camera-directed bathymetry and the fishing/diving profiles do not move PR
+11–15 into the initial MVP. PR 6–10 may use fake terrain fixtures to prove ray
+selection and information bubbles before production bathymetry is available.
+
 ## Appendix B — License & attribution checklist
 
 - App code: **Apache-2.0**  
@@ -1306,3 +1334,4 @@ flowchart TB
 | 1 | 2026-07-27 | Initial draft |
 | 2 | 2026-07-27 | Address design review Issues 1–24: encoding, occlusion framing, anchor algorithm, vertical datum, native scene ownership, PR reorder, MetricFormat, peaks/bubbles contracts, water modes, fusion yaw, resolution UX, expanded KDs, alternatives A6–A7, performance/security/testing, terminology |
 | 3 | 2026-07-27 | Re-review Issues 25–30: Android ARCore+Filament composition annex + PR 5a/GLES fallback; PR 19 launch/legal refs; geographic TileId pyramid; GEBCO↔EGM96 clip policy; WMM declination; Phase B filter wording; Marine profile matrix clarity |
+| 4 | 2026-09-04 | Implementation kickoff: PR 1 shell/CI; camera-directed distance/depth/elevation behavior; planning profiles for diving, scallops, pots, and nets; explicit provenance and resolution gates; no change to the iOS-first MVP cut line. |
