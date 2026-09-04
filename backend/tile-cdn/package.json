@@ -1,0 +1,16 @@
+{
+  "name": "@seagrid/tile-cdn",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check src/index.js",
+    "test": "node --test test/*.test.js",
+    "dev": "wrangler dev",
+    "deploy:dev": "wrangler deploy",
+    "deploy:production": "wrangler deploy --env production"
+  },
+  "devDependencies": {
+    "wrangler": "^4.129.0"
+  }
+}

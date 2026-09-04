@@ -1,0 +1,33 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "seagrid-tile-cdn-dev",
+  "main": "src/index.js",
+  "compatibility_date": "2026-09-04",
+  "workers_dev": true,
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "ALLOWED_ORIGIN": "*"
+  },
+  "r2_buckets": [
+    {
+      "binding": "TILE_BUCKET",
+      "bucket_name": "seagrid-ar-tiles-dev"
+    }
+  ],
+  "env": {
+    "production": {
+      "name": "seagrid-tile-cdn",
+      "vars": {
+        "ALLOWED_ORIGIN": "*"
+      },
+      "r2_buckets": [
+        {
+          "binding": "TILE_BUCKET",
+          "bucket_name": "seagrid-ar-tiles"
+        }
+      ]
+    }
+  }
+}
