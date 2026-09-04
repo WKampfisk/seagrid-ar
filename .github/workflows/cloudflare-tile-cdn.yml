@@ -1,0 +1,53 @@
+name: Cloudflare tile CDN
+
+on:
+  pull_request:
+    paths:
+      - "backend/tile-cdn/**"
+      - ".github/workflows/cloudflare-tile-cdn.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-tile-cdn-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: backend/tile-cdn
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/tile-cdn/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run check
+      - run: npx wrangler deploy --dry-run --env=""
+
+  deploy-development:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/tile-cdn/package-lock.json
+      - run: npm ci
+      - name: Deploy development Worker
+        run: npm run deploy:dev
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
