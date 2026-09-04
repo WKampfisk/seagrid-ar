@@ -11,16 +11,15 @@ command:
 scripts:
   analyze:
     description: Analyze all Dart and Flutter packages.
-    run: melos exec --fail-fast -- flutter analyze
+    run: dart run melos exec --fail-fast -- flutter analyze
 
   test:
     description: Run all Dart and Flutter tests.
-    run: melos exec --fail-fast -- flutter test
+    run: dart run melos exec --fail-fast -- flutter test
 
   check:
     description: Format, analyze, and test the workspace.
     run: >-
       dart format --output=none --set-exit-if-changed . &&
-      melos run analyze &&
-      melos run test
-
+      dart run melos run analyze &&
+      dart run melos run test
