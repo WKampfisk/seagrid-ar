@@ -15,4 +15,3 @@ void main() {
     expect(find.text('AR initialization pending'), findsOneWidget);
   });
 }
-

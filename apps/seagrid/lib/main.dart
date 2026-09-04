@@ -77,4 +77,3 @@ class _DevelopmentStatus extends StatelessWidget {
     );
   }
 }
-
